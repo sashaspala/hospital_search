@@ -1,0 +1,30 @@
+<!doctype html>
+
+<head>
+    <title>2016 Movie Search</title>
+</head>
+
+<body bgcolor="#E6E6FA">
+
+<h1>Hospital Search</h1>
+
+<p>Use the search boxes to look for hospital reviews.</p>
+
+<form action='/results' name="search" method="post">
+    <dl>
+        <dt>Key words:
+        <dd><input type="text" name="textq">
+        <dt>Min Date:
+        <dd><input type="text" name="date_min">
+        <dt>Max Date:
+        <dd><input type="text" name="date_max">
+        <dt>Minimum Stars Given:
+        <dd><input type="text" name="stars_min">
+        <dt>Maximum Stars Given:
+        <dd><input type="text" name="stars_max">
+        <dd><input type="submit" value="Search">
+    </dl>
+</form>
+
+
+</body>

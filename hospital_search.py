@@ -33,6 +33,7 @@ def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max):
     # Run query
     respobj = searchobj.scan()
     ret = [r.meta.id for r in respobj]
+    print ret  # debug
     return ret
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import json
 from elasticsearch import Elasticsearch, helpers
 from elasticsearch_dsl import *
 from elasticsearch_dsl.connections import connections
+import shelve
 
 
 class Review(DocType):
@@ -56,6 +57,14 @@ if __name__ == "__main__":
         ]
 
     helpers.bulk(es, actions)
+
+    # Create index for easy retrieval of reviews
+    id_to_data = shelve.open('IDtoData.dat', flag='n')
+    id_to_data['favicon.ico'] = ''  # Don't know why, but it keeps looking for this and raising key errors
+    for review in reviews:
+        id_to_data[str(review["review_id"])] = review
+    id_to_data.close()
+
     corpus.close()
 
     # Check that mapping is correct
