@@ -1,6 +1,7 @@
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.connections import connections
+from collections import defaultdict
 
 
 # Builds query
@@ -32,9 +33,17 @@ def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max, miles
 
     # Run query
     respobj = searchobj.scan()
-    ret = [r.meta.id for r in respobj]
+    ret = [(r.meta.id, r["business_id"]) for r in respobj]
     print ret  # debug
-    return ret
+    return group_hospitals(ret)
+
+
+def group_hospitals(reviews):
+    hos_dict = defaultdict(list)
+    for (rev_id, bus) in reviews:
+        hos_dict[bus].append(rev_id)
+    [(k, hos_dict[k]) for k in hos_dict]
+    return [(k, hos_dict[k]) for k in hos_dict]
 
 
 def format_date(date_str):
