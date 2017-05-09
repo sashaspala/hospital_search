@@ -4,7 +4,7 @@ from elasticsearch_dsl.connections import connections
 
 
 # Builds query
-def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max):
+def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max, miles, zip_code):
     if len(textq) > 0:
         searchobj.query = Q('match', text=textq)
     else:
@@ -36,9 +36,27 @@ def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max):
     print ret  # debug
     return ret
 
+
+def format_date(date_str):
+    if len(date_str) == 0:
+        return date_str
+    date_str = date_str.replace("/", "-")
+    pieces = date_str.split("-")
+    if 2018 > int(pieces[0]) > 1900:  # YYYY/MM/DD
+        return date_str
+    if 0 < int(pieces[0]) < 13:  # MM/DD/YYYY
+        return "-".join([pieces[2], pieces[0], pieces[1]])
+    if 0 < int(pieces[0]) < 32:  # DD/MM/YY
+        return "-".join([pieces[2], pieces[1], pieces[0]])
+    return ""
+
 if __name__ == "__main__":
     # Test search function
-    client = Elasticsearch()
-    connections.create_connection(hosts=['localhost'])
-    s = Search(using=client, index="review_index")
-    print hos_search(s, "", "2015-12-20", "", "", "")
+    # client = Elasticsearch()
+    # connections.create_connection(hosts=['localhost'])
+    # s = Search(using=client, index="review_index")
+    # print hos_search(s, "", "2015-12-20", "", "", "")
+    print(format_date("12-14-2017"))
+    print(format_date("18-11-2017"))
+    print(format_date("2017-10-11"))
+    print(format_date("00-00-0000"))
