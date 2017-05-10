@@ -60,16 +60,18 @@ def results(page):
                 hospital_names.append(info['name'])
 
         session['search_results'] = final_results
+        session['hospitals'] = hospital_names
 
-        #print session['search_results']
         session['queries'] = [textq, date_min, date_max, stars_min, stars_max, miles]
+
     top10 = session['search_results'][page*10-10:page*10]
+    top10_hosp = session['hospitals'][page*10-10:page*10]
     print top10  # debug
     empty = len(top10) == 0
     prev_button = bool(page > 1)
     next_button = bool(page < (len(session['search_results']) - 1) // 10 + 1)
     query = ", ".join([q for q in session['queries'] if len(q) > 0])
-    return render_template('page_2.html', results=top10, hospitals=hospital_names, empty=empty, prev_button=prev_button, queries=session['queries'],
+    return render_template('page_2.html', results=top10, hospitals=top10_hosp, empty=empty, prev_button=prev_button, queries=session['queries'],
                            next_button=next_button, page=page, query=query, num_res=len(session['search_results']))
     # return render_template('page_2.html', results=results)
 
