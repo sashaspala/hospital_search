@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <head>
-    <title>Business:  {{  }}</title>
+    <title>{{ hos_name }}</title>
 </head>
 <body bgcolor="#FFCCCC">
-    <h1>Review number {{ review_id }}:</h1>
+    <h1>{{ hos_name }}:</h1>
+    <p>{{ review }}</p>
     {% for key in info %}
         <p>{{ key }}: {{ info[key] }}</p>
     {% endfor %}

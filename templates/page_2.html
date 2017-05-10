@@ -15,13 +15,13 @@
         {% for res in results %}
 	        <li>
                 {{ res[0] }}
-                <ul>
+                <ol>
                     {% for rev in res[1] %}
                         <li>
-                            <a href="/{{ rev }}">{{ rev }}</a>
+                            <a href="/{{ res[0] }}/{{ rev[0] }}">{{ rev[1] }}...</a>
                         </li>
                     {% endfor %}
-                </ul>
+                </ol>
             </li>
         {% endfor %}
     </ol>
