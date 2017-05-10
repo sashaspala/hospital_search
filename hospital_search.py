@@ -62,7 +62,7 @@ def group_hospitals(reviews):
     for (rev_id, bus, txt) in reviews:
         hos_dict[bus].append((rev_id, txt))
 
-    return [(k, hos_dict[k]) for k in hos_dict]
+    return [(k, hos_dict[k] ) for k in hos_dict]
 
 
 def format_date(date_str):
