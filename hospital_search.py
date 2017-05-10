@@ -2,12 +2,29 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.connections import connections
 from collections import defaultdict
+from nltk.corpus import wordnet
+from nltk.stem import WordNetLemmatizer
 
 
 # Builds query
 def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max, miles, zip_code):
+    stem = WordNetLemmatizer()
     if len(textq) > 0:
-        searchobj.query = Q('match', text=textq)
+        terms = textq.split()
+        must = [Q('match', text=term) for term in terms]
+        should = []
+        # Get related words that might increase usefulness
+        for q in terms:
+            if q.endswith("'s"):  # mostly for terms like "children's"
+                q = q[:-2]
+            try:
+                ss = wordnet.synsets(stem.lemmatize(q))[0]
+                print [str(word.name()).split(".")[0] for word in ss.hyponyms() if "_" not in word.name()]
+                should += [str(word.name()).split(".")[0] for word in ss.hyponyms() if "_" not in word.name()]
+            except IndexError:
+                continue
+        should = [Q('match', text=term) for term in should]
+        searchobj.query = Q('bool', must=must, should=should)
     else:
         searchobj.query = Q()
 
@@ -42,7 +59,6 @@ def group_hospitals(reviews):
     hos_dict = defaultdict(list)
     for (rev_id, bus) in reviews:
         hos_dict[bus].append(rev_id)
-    [(k, hos_dict[k]) for k in hos_dict]
     return [(k, hos_dict[k]) for k in hos_dict]
 
 
@@ -61,11 +77,11 @@ def format_date(date_str):
 
 if __name__ == "__main__":
     # Test search function
-    # client = Elasticsearch()
-    # connections.create_connection(hosts=['localhost'])
-    # s = Search(using=client, index="review_index")
-    # print hos_search(s, "", "2015-12-20", "", "", "")
-    print(format_date("12-14-2017"))
-    print(format_date("18-11-2017"))
-    print(format_date("2017-10-11"))
-    print(format_date("00-00-0000"))
+    client = Elasticsearch()
+    connections.create_connection(hosts=['localhost'])
+    s = Search(using=client, index="review_index")
+    print hos_search(s, "children's hospitals", "2015-12-20", "", "", "", "", "")
+    # print(format_date("12-14-2017"))
+    # print(format_date("18-11-2017"))
+    # print(format_date("2017-10-11"))
+    # print(format_date("00-00-0000"))
