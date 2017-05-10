@@ -1,5 +1,4 @@
 from flask import *
-from business_search import busi_search
 from hospital_search import hos_search, format_date
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
