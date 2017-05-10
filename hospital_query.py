@@ -1,13 +1,11 @@
 from flask import *
 from business_search import busi_search
 from hospital_search import hos_search, format_date
-from geopy.distance import vincenty
-from geopy.geocoders import Nominatim
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 import shelve
 import requests
-import json
+
 app = Flask(__name__)
 app.secret_key = '12345'
 
@@ -38,9 +36,6 @@ def results(page):
         # print hos_search(s, textq, date_min, date_max, stars_min, stars_max)
         init_results = hos_search(s, textq, format_date(date_min), format_date(date_max), stars_min,
                                                stars_max)
-        locator = Nominatim()
-        #session['search_results'] = # [result for result in init_results
-                                     #if get_distance(locator, (city, state), (result['city'], result['state'])) < float(miles)]
         final_results = []
         data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
 
