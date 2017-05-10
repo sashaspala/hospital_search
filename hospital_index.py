@@ -105,6 +105,13 @@ if __name__ == "__main__":
         id_to_data[str(review["review_id"])] = review
     id_to_data.close()
 
+    hosp_to_data = shelve.open('HosptoData.dat', flag='n')
+    hosp_to_data['favicon.ico'] = ''
+    for hospital in businesses:
+        hosp_to_data[str(hospital['business_id'])] = hospital
+    print(hosp_to_data['AkiKhpQcTspXrUo_OI3feA'])
+    hosp_to_data.close()
+
     helpers.bulk(es, business_actions)
     business_corpus.close()
     corpus.close()

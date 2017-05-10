@@ -17,12 +17,14 @@ class Parser:
 		hospital_attributes = ["Medical Centers", "Hospitals","Health & Medical"]
 		for business in data:
 			#make sure this business matches some hospital queries
+			found = False
 			for category in hospital_attributes:
-				if business['categories'] is not None and category in business['categories']:
+				if business['categories'] is not None and category in business['categories'] and not found:
 					# got a potential hospital! add to our smaller json file
 					id = business['business_id']
 					hosp_json.append(business)
 					self.hosp_ids.append(id) # so we can easily match these later if we need to
+					found = True
 		return hosp_json
 
 	def save_to_file(self, data_dict):
