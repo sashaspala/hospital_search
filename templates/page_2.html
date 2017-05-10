@@ -4,7 +4,7 @@
     <title>Search Results</title>
 </head>
 
-<body bgcolor="#CCFFCC">
+<body bgcolor="#DDFFAA">
 
 <h1>Search results for "{{ query }}":</h1>
 <p>{{ num_res }} results found</p>
@@ -12,16 +12,16 @@
     <p>Sorry, we couldn't find any results for that query. Try again:</p>
 {% else %}
     <ol start="{{ (page - 1) * 10 + 1 }}">
-        {% for res in results %}
+        {% for index in range(results|length)%}
 	        <li>
-                {{ res[0] }}
-                <ul>
-                    {% for rev in res[1] %}
+                <a href="/{{ results[index][0] }}">{{ hospitals[index] }}</a>
+                <ol>
+                    {% for rev in results[index][1] %}
                         <li>
-                            <a href="/{{ rev }}">{{ rev }}</a>
+                            <a href="/{{ results[index][0] }}/{{ rev[0] }}">{{ rev[1] }}...</a>
                         </li>
                     {% endfor %}
-                </ul>
+                </ol>
             </li>
         {% endfor %}
     </ol>

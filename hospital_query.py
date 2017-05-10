@@ -25,7 +25,6 @@ def results(page):
     if request.method == "POST":
         print "post"  # debug
         textq = request.form['textq']
-        print textq
         date_min = request.form['date_min']
         date_max = request.form['date_max']
         stars_min = request.form['stars_min']
@@ -36,27 +35,39 @@ def results(page):
         # print hos_search(s, textq, date_min, date_max, stars_min, stars_max)
         init_results = hos_search(s, textq, format_date(date_min), format_date(date_max), stars_min,
                                                stars_max)
-        final_results = []
-        data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+        hospital_names = []
+        if len(miles) > 0 and (len(city) > 0 or len(state) > 0):
+            data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+            final_results = []
 
-        for review in init_results:
-            # (review_id, [review ids of same hospital])
-            info = data[str(review[0])]
-            #these load the review and the other reviews associated with the same hospital
+            for review in init_results:
+                # (review_id, [review ids of same hospital])
+                info = data[str(review[0])]
+                #these load the review and the other reviews associated with the same hospital
 
-            if get_distance(city + ',' + state, str(info['city']) + ',' + str(info['state'])) > float(miles):
-                final_results.append(review)
-        print(str(final_results))
+                if get_distance(city + ',' + state, str(info['city']) + ',' + str(info['state'])) > float(miles):
+                    final_results.append(review)
+                    hospital_names.append(info['name'])
+            print(str(final_results))
+            data.close()
+        else:
+            final_results = init_results
+            data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+            for review in init_results:
+                info = data[str(review[0])]
+                hospital_names.append(info['name'])
+
         session['search_results'] = final_results
+
         #print session['search_results']
         session['queries'] = [textq, date_min, date_max, stars_min, stars_max, miles]
-    top10 = session['search_results'][0][page*10-10:page*10]
+    top10 = session['search_results'][page*10-10:page*10]
     print top10  # debug
     empty = len(top10) == 0
     prev_button = bool(page > 1)
     next_button = bool(page < (len(session['search_results']) - 1) // 10 + 1)
     query = ", ".join([q for q in session['queries'] if len(q) > 0])
-    return render_template('page_2.html', results=top10, empty=empty, prev_button=prev_button, queries=session['queries'],
+    return render_template('page_2.html', results=top10, hospitals=hospital_names, empty=empty, prev_button=prev_button, queries=session['queries'],
                            next_button=next_button, page=page, query=query, num_res=len(session['search_results']))
     # return render_template('page_2.html', results=results)
 
@@ -70,15 +81,21 @@ def get_distance(loc_1, loc_2):
 @app.route('/<business_id>/<review_id>')
 def show_info(business_id, review_id):
 
-    data = shelve.open("IDtoData.dat")
-    info = data[str(review_id)]
+    data = shelve.open("/Users/sspala2/hospital_search/IDtoData.dat")
+    review = data[str(review_id)]["text"]
     data.close()
 
-    #also now search for the hospital that matches this business_id
-    session['hosptial'] = busi_search(b, business_id)[0]
-    print("hospital: " + session['hospital'])
+    hos_data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+    info = hos_data[str(business_id)]
+    hos_data.close()
+    return render_template('page_3.html', hos_name=info["name"], review=review, info=info)
 
-    return render_template('page_3.html', id=review_id, info=info)
+@app.route('/<business_id>')
+def hos_info(business_id):
+    hos_data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+    info = hos_data[str(business_id)]
+    hos_data.close()
+    return render_template('page_3.html', hos_name=info["name"], info=info)
 
 
 if __name__ == "__main__":
