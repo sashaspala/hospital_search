@@ -11,13 +11,20 @@
 {% if empty %}
     <p>Sorry, we couldn't find any results for that query. Try again:</p>
 {% else %}
-    <ul>
+    <ol>
         {% for res in results %}
 	        <li>
-                <a href="/{{ res }}">{{ res }}</a>
+                {{ res[0] }}
+                <ul>
+                    {% for rev in res[1] %}
+                        <li>
+                            <a href="/{{ rev }}">{{ rev }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </li>
         {% endfor %}
-    </ul>
+    </ol>
 {% endif %}
 {% if prev_button %}
     <form action='/results/{{ page - 1 }}' name="prev10" method="get">
@@ -35,19 +42,30 @@
 {% endif %}
 
 <form action='/results') name="search" method="post">
-    <dl>
-        <dt>Key words:
-        <dd><input type="text" name="textq" value="{{ queries[0] }}">
-        <dt>Min Date:
-        <dd><input type="text" name="date_min" value="{{ queries[1] }}">
-        <dt>Max Date:
-        <dd><input type="text" name="date_max" value="{{ queries[2] }}">
-        <dt>Minimum Stars Given:
-        <dd><input type="text" name="stars_min" value="{{ queries[3] }}">
-        <dt>Maximum Stars Given:
-        <dd><input type="text" name="stars_max" value="{{ queries[4] }}">
-        <dd><input type="submit" value="Search">
-    </dl>
+    <table>
+        <tr>
+            <td>Key words:</td>
+            <td colspan="2"><input type="text" name="textq" size="49" value="{{ queries[0] }}"></td>
+        </tr>
+        <tr>
+            <td>Date:</td>
+            <td><input type="text" name="date_min" value="{{ queries[1] }}"> - </td>
+            <td><input type="text" name="date_max" value="{{ queries[2] }}"></td>
+        </tr>
+        <tr>
+            <td>Stars Given:</td>
+            <td><input type="text" name="stars_min" value="{{ queries[3] }}"> - </td>
+            <td><input type="text" name="stars_max" value="{{ queries[4] }}"></td>
+        </tr>
+        <tr>
+            <td>Location:</td>
+            <td>within <input type="text" name="miles" size="8" value="{{ queries[5] }}"> miles of </td>
+            <td><input type="text" name="zip_code" value="{{ queries[6] }}"></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Search"></td>
+        </tr>
+    </table>
 </form>
 
 </body>

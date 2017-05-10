@@ -1,6 +1,7 @@
 from flask import *
-from hospital_search import hos_search
 from business_search import busi_search
+from hospital_search import hos_search, format_date
+
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 import shelve
@@ -29,10 +30,13 @@ def results(page):
         date_max = request.form['date_max']
         stars_min = request.form['stars_min']
         stars_max = request.form['stars_max']
-        print hos_search(s, textq, date_min, date_max, stars_min, stars_max)
-        session['search_results'] = hos_search(s, textq, date_min, date_max, stars_min, stars_max)
+        miles = request.form['miles']
+        zip_code = request.form['zip_code']
+        # print hos_search(s, textq, date_min, date_max, stars_min, stars_max)
+        session['search_results'] = hos_search(s, textq, format_date(date_min), format_date(date_max), stars_min,
+                                               stars_max, miles, zip_code)
         print session['search_results']
-        session['queries'] = [textq, date_min, date_max, stars_min, stars_max]
+        session['queries'] = [textq, date_min, date_max, stars_min, stars_max, miles, zip_code]
     top10 = session['search_results'][page*10-10:page*10]
     print top10  # debug
     empty = len(top10) == 0
