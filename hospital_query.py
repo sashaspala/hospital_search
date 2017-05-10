@@ -80,7 +80,13 @@ def show_info(business_id, review_id):
     hos_data = shelve.open("IDtoData.dat")
     info = hos_data[str(business_id)]
     hos_data.close()
+    return render_template('page_3.html', hos_name=hos_data["name"], review=review, info=info)
 
+@app.route('/<business_id>')
+def hos_info(business_id):
+    hos_data = shelve.open("IDtoData.dat")
+    info = hos_data[str(business_id)]
+    hos_data.close()
     return render_template('page_3.html', hos_name=hos_data["name"], review=review, info=info)
 
 

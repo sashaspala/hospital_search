@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<head>
+    <title>{{ hos_name }}</title>
+</head>
+<body bgcolor="#FFCCCC">
+    <h1>{{ hos_name }}:</h1>
+    {% for key in info %}
+        <p>{{ key }}: {{ info[key] }}</p>
+    {% endfor %}
+</body>
+</html>
