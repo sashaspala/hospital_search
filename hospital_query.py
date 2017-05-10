@@ -5,6 +5,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 import shelve
 import requests
+import sys
 
 app = Flask(__name__)
 app.secret_key = '12345'
@@ -13,6 +14,8 @@ client = Elasticsearch()
 s = Search(using=client, index="review_index")
 b = Search(using=client, index="business_index")
 
+review_path = sys.argv[1]
+hospital_path = sys.argv[2]
 
 @app.route("/")
 def search():
@@ -37,7 +40,7 @@ def results(page):
                                                stars_max)
         hospital_names = []
         if len(miles) > 0 and (len(city) > 0 or len(state) > 0):
-            data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+            data = shelve.open(hospital_path)
             final_results = []
 
             for review in init_results:
@@ -52,7 +55,7 @@ def results(page):
             data.close()
         else:
             final_results = init_results
-            data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+            data = shelve.open(hospital_path)
             for review in init_results:
                 info = data[str(review[0])]
                 hospital_names.append(info['name'])
@@ -81,18 +84,18 @@ def get_distance(loc_1, loc_2):
 @app.route('/<business_id>/<review_id>')
 def show_info(business_id, review_id):
 
-    data = shelve.open("/Users/sspala2/hospital_search/IDtoData.dat")
+    data = shelve.open(review_path)
     review = data[str(review_id)]["text"]
     data.close()
 
-    hos_data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+    hos_data = shelve.open(hospital_path)
     info = hos_data[str(business_id)]
     hos_data.close()
     return render_template('page_3.html', hos_name=info["name"], review=review, info=info)
 
 @app.route('/<business_id>')
 def hos_info(business_id):
-    hos_data = shelve.open("/Users/sspala2/hospital_search/HosptoData.dat")
+    hos_data = shelve.open(hospital_path)
     info = hos_data[str(business_id)]
     hos_data.close()
     return render_template('page_3.html', hos_name=info["name"], info=info)
