@@ -5,7 +5,7 @@ from collections import defaultdict
 
 
 # Builds query
-def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max, miles, zip_code):
+def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max):
     if len(textq) > 0:
         searchobj.query = Q('match', text=textq)
     else:
@@ -33,16 +33,17 @@ def hos_search(searchobj, textq, date_min, date_max, stars_min, stars_max, miles
 
     # Run query
     respobj = searchobj.scan()
-    ret = [(r.meta.id, r["business_id"]) for r in respobj]
+    ret = [(r.meta.id, r) for r in respobj]
     print ret  # debug
-    return group_hospitals(ret)
+    return group_hospitals(ret), respobj
 
 
 def group_hospitals(reviews):
     hos_dict = defaultdict(list)
-    for (rev_id, bus) in reviews:
-        hos_dict[bus].append(rev_id)
+    for (rev_id, r) in reviews:
+        hos_dict[r['business_id']].append(rev_id)
     [(k, hos_dict[k]) for k in hos_dict]
+    #(hospital id, [review_id_1, review_id_2,...])
     return [(k, hos_dict[k]) for k in hos_dict]
 
 
