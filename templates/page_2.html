@@ -11,7 +11,7 @@
 {% if empty %}
     <p>Sorry, we couldn't find any results for that query. Try again:</p>
 {% else %}
-    <ol>
+    <ol start="{{ (page - 1) * 10 + 1 }}">
         {% for res in results %}
 	        <li>
                 {{ res[0] }}
@@ -26,20 +26,28 @@
         {% endfor %}
     </ol>
 {% endif %}
-{% if prev_button %}
-    <form action='/results/{{ page - 1 }}' name="prev10" method="get">
-        <dl>
-            <dd><input type="submit" value="Previous">
-        </dl>
-    </form>
-{% endif %}
-{% if next_button %}
-    <form action='/results/{{ page + 1 }}' name="next10" method="get">
-        <dl>
-            <dd><input type="submit" value="Next">
-        </dl>
-    </form>
-{% endif %}
+<table>
+    <tr>
+        {% if prev_button %}
+            <td>
+                <form action='/results/{{ page - 1 }}' name="prev10" method="get">
+                    <dl>
+                        <dd><input type="submit" value="Previous">
+                    </dl>
+                </form>
+            </td>
+        {% endif %}
+        {% if next_button %}
+            <td>
+                <form action='/results/{{ page + 1 }}' name="next10" method="get">
+                    <dl>
+                        <dd><input type="submit" value="Next">
+                    </dl>
+                </form>
+            </td>
+        {% endif %}
+    </tr>
+</table>
 
 <form action='/results') name="search" method="post">
     <table>
