@@ -22,6 +22,19 @@ class Review(DocType):
     def save(self, **kwargs):
         return super(Review, self).save(**kwargs)
 
+class Business(DocType):
+    business_id = Text()
+    name = Text()
+
+    city = Text()
+    state = Text()
+    review_count = Integer()
+
+    class Meta:
+        index = 'business_index'
+
+    def save(self, **kwargs):
+        return super(Review, self).save(**kwargs)
 
 # Creates index
 if __name__ == "__main__":
@@ -29,17 +42,28 @@ if __name__ == "__main__":
     es = Elasticsearch()
     connections.create_connection(hosts=['localhost'])
     # Get reviews
-    corpus = open('hospitals_reviews.json')
+    corpus = open('expanded_reviews_5000.json')
+    business_corpus = open('expanded_dataset.json')
+
     reviews = json.load(corpus)
+    businesses = json.load(business_corpus)
 
     review_index = Index('review_index')
+    business_index = Index('business_index')
+
     if review_index.exists():
         review_index.delete()  # overwrite any previous version
+    if business_index.exists():
+        business_index.delete()
+
     review_index.doc_type(Review)
     review_index.create()
 
+    business_index.doc_type(Business)
+    business_index.create()
+
     # Actions for bulk loading
-    actions = [
+    review_actions = [
         {
             "_index": "review_index",
             "_id": reviews[i]["review_id"],
@@ -56,7 +80,23 @@ if __name__ == "__main__":
         for i in range(len(reviews))
         ]
 
-    helpers.bulk(es, actions)
+    business_actions = [
+        {
+            "_index": "business_index",
+            "_id": businesses[i]["business_id"],
+            "_type": "business",
+            "_source": {
+                "business_id": businesses[i]["business_id"],
+                "name": businesses[i]['name'],
+                "city": businesses[i]['city'],
+                "state": businesses[i]['state'],
+                "review_count": businesses[i]['review_count']
+            }
+        }
+        for i in range(len(businesses))
+    ]
+
+    helpers.bulk(es, review_actions)
 
     # Create index for easy retrieval of reviews
     id_to_data = shelve.open('IDtoData.dat', flag='n')
@@ -65,6 +105,8 @@ if __name__ == "__main__":
         id_to_data[str(review["review_id"])] = review
     id_to_data.close()
 
+    helpers.bulk(es, business_actions)
+    business_corpus.close()
     corpus.close()
 
     # Check that mapping is correct

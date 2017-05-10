@@ -1,5 +1,6 @@
 from flask import *
 from hospital_search import hos_search
+from business_search import busi_search
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 import shelve
@@ -9,6 +10,7 @@ app.secret_key = '12345'
 
 client = Elasticsearch()
 s = Search(using=client, index="review_index")
+b = Search(using=client, index="business_index")
 
 
 @app.route("/")
@@ -42,11 +44,17 @@ def results(page):
     # return render_template('page_2.html', results=results)
 
 
-@app.route('/<review_id>')
-def show_info(review_id):
+@app.route('/<business_id>/<review_id>')
+def show_info(business_id, review_id):
+
     data = shelve.open("IDtoData.dat")
     info = data[str(review_id)]
     data.close()
+
+    #also now search for the hospital that matches this business_id
+    session['hosptial'] = busi_search(b, business_id)[0]
+    print(session['hospital'])
+
     return render_template('page_3.html', id=review_id, info=info)
 
 
